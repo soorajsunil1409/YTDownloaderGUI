@@ -1,4 +1,5 @@
 from tkinter import *
+from sys import platform
 from tkinter import filedialog
 import pytube
 
@@ -8,6 +9,11 @@ class Downloader(Tk):
         self.title("Video Downloader")
         self.geometry("600x330")
         self.resizable(False, False)
+
+        if platform == "darwin":
+            self.def_font_size = 22
+        elif platform == "win32":
+            self.def_font_size = 22
 
         self.link_str = StringVar()
         self.path_str = StringVar()
@@ -21,22 +27,22 @@ class Downloader(Tk):
         self.title = Label(self, text="Video Downloader", bg="red", height=2, fg="#fff", font=("Helvetica", 35, "bold"))
         self.title.place(height=100, width=600, x=0, y=0)
 
-        self.link_lbl = Label(self, text="Enter video link: ", font=("Helvetica", 22, "bold"))
+        self.link_lbl = Label(self, text="Enter video link: ", font=("Helvetica", self.def_font_size, "bold"))
         self.link_lbl.place(width=200, x=0, y=120)
 
-        self.link = Entry(self, width=50, textvariable=self.link_str, font=("Helvetica", 22, "bold"))
+        self.link = Entry(self, width=50, textvariable=self.link_str, font=("Helvetica", self.def_font_size, "bold"))
         self.link.place(width=400, x=190, y=118)
 
-        self.title_lbl = Label(self, text="Enter Title: ", font=("Helvetica", 22, "bold"))
+        self.title_lbl = Label(self, text="Enter Title: ", font=("Helvetica", self.def_font_size, "bold"))
         self.title_lbl.place(width=235, x=11, y=170)
 
-        self.title = Entry(self, width=50, textvariable=self.title_str, font=("Helvetica", 22, "bold"))
+        self.title = Entry(self, width=50, textvariable=self.title_str, font=("Helvetica", self.def_font_size, "bold"))
         self.title.place(width=400, x=190, y=170)
 
-        self.download_btn = Button(self, text="Download", font=("Helvetica", 22, "bold"), command=self.ask_download)
+        self.download_btn = Button(self, text="Download", font=("Helvetica", self.def_font_size, "bold"), command=self.ask_download)
         self.download_btn.place(width=200, height=50, x=200, y=220)
 
-        self.error_lbl = Label(self, text="", font=("Helvetica", 22, "bold"))
+        self.error_lbl = Label(self, text="", font=("Helvetica", self.def_font_size, "bold"))
         self.error_lbl.pack(side=BOTTOM, pady=15)
 
         self.init_menu()
@@ -56,9 +62,9 @@ class Downloader(Tk):
         about_win = Tk()
         about_win.title("About Me")
         about_win.resizable(False, False)
+        if platform == "win32":
+            about_win.attributes('-toolwindow', True) # Windows Only
         about_win.geometry("200x200")
-
-        # About
 
         about_win.mainloop()
 
