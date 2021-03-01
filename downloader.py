@@ -7,6 +7,7 @@ class Downloader(Tk):
         super().__init__()
         self.title("Video Downloader")
         self.geometry("600x330")
+        self.resizable(False, False)
 
         self.link_str = StringVar()
         self.path_str = StringVar()
@@ -38,28 +39,68 @@ class Downloader(Tk):
         self.error_lbl = Label(self, text="", font=("Helvetica", 22, "bold"))
         self.error_lbl.pack(side=BOTTOM, pady=15)
 
+        self.init_menu()
+
+
+    def init_menu(self):
+        self.menu = Menu(self)
+
+        self.help1 = Menu(self.menu)
+        self.help1.add_command(label="About...", command=self.show_about)
+
+        self.menu.add_cascade(label="Help", menu=self.help1)
+        self.config(menu=self.menu)
+
+
+    def show_about(self):
+        about_win = Tk()
+        about_win.title("About Me")
+        about_win.resizable(False, False)
+        about_win.geometry("200x200")
+
+        # About
+
+        about_win.mainloop()
+
 
     def ask_download(self):
-        if self.path_str != "":
-            download_path = filedialog.askdirectory(title="Download")
+        if self.link_str.get() != "":
+            self.download_path = filedialog.askdirectory()
 
-            if not download_path:
+            if not self.download_path:
+                print("No dld path")
                 return
 
             try:
-                yt = pytube.YouTube()
+                yt = pytube.YouTube(self.link_str.get())
             except:
-                self.error_lbl.config(text="Connection error")
+                self.error_lbl.config(text=f"Invalid URL '{self.link_str.get()}'")
+                print(self.path_str.get())
+                print("Invalid URL")
+                return
+            try:
+                d_video = yt.streams.filter(res="720p")[0]
+            except:
+                d_video = yt.streams.first()
+
+            if self.title_str.get() != "":
+                self.dld_video(d_video)
+            else:
+                self.error_lbl.config(text=f"Please enter a title")
+                print("No title") 
                 return
 
-        mp4files = yt.filter('mp4')
-
-        if self.title_str != "":
-            yt.set_filename(self.title_str)
-        
-        
+            
+            self.error_lbl.config(text=f"Video '{self.title_str.get()}' downloaded successfully!")
 
 
+    def dld_video(self, d_video):
+        try:
+            d_video.download(self.download_path)
+        except OSError:
+            self.error_lbl.config(text="Error in downloading the video")
+            print("OS Error")
+            return
 
 if __name__ == "__main__":
     app = Downloader()
