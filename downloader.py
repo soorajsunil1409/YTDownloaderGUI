@@ -7,7 +7,7 @@ import pytube
 class Downloader(Tk):
     def __init__(self):
         super().__init__()
-        self.title("Video Downloader")
+        self.title("Tube Downloader")
         self.geometry("600x330")
         self.resizable(False, False)
 
@@ -21,7 +21,8 @@ class Downloader(Tk):
 
         self.link_str = StringVar()
         self.path_str = StringVar()
-        self.title_str = StringVar()
+        if platform == "darwin":
+            self.title_str = StringVar()
 
         self.init_widgets()
         
@@ -29,20 +30,21 @@ class Downloader(Tk):
 
 
     def init_widgets(self):
-        self.title = Label(self, text="Video Downloader", bg="red", height=2, fg="#fff", font=("Helvetica", 35, "bold"))
+        self.title = Label(self, text="Tube Downloader", bg="red", height=2, fg="#fff", font=("Helvetica", 35, "bold"))
         self.title.place(height=100, width=600, x=0, y=0)
 
-        self.link_lbl = Label(self, text="Enter video link: ", font=("Helvetica", self.def_font_size, "bold"))
+        self.link_lbl = Label(self, text="Enter video url: ", font=("Helvetica", self.def_font_size, "bold"))
         self.link_lbl.place(width=200, x=0, y=120)
 
         self.link = Entry(self, width=50, textvariable=self.link_str, font=("Helvetica", self.def_font_size, "bold"))
         self.link.place(width=400, x=190, y=118)
 
-        self.title_lbl = Label(self, text="Enter Title: ", font=("Helvetica", self.def_font_size, "bold"))
-        self.title_lbl.place(width=235, x=11, y=170)
+        if platform == "darwin":
+            self.title_lbl = Label(self, text="Enter Title: ", font=("Helvetica", self.def_font_size, "bold"))
+            self.title_lbl.place(width=235, x=11, y=170)
 
-        self.title = Entry(self, width=50, textvariable=self.title_str, font=("Helvetica", self.def_font_size, "bold"))
-        self.title.place(width=400, x=190, y=170)
+            self.title = Entry(self, width=50, textvariable=self.title_str, font=("Helvetica", self.def_font_size, "bold"))
+            self.title.place(width=400, x=190, y=170)
 
         self.download_btn = Button(self, text="Download", font=("Helvetica", self.def_font_size, "bold"), command=self.ask_download)
         self.download_btn.place(width=200, height=50, x=200, y=220)
@@ -94,16 +96,21 @@ class Downloader(Tk):
             except:
                 d_video = yt.streams.first()
 
-            if self.title_str.get() != "":
-                error = self.dld_video(d_video)
-                if error == "error": return
+            if platform == "darwin":
+                if self.title_str.get() != "":
+                    error = self.dld_video(d_video)
+                    if error == "error": return
+                else:
+                    self.error_lbl.config(text=f"Please enter a title")
+                    print("No title") 
+                    return
             else:
-                self.error_lbl.config(text=f"Please enter a title")
-                print("No title") 
-                return
+                error = self.dld_video(d_video)
 
-            
-            self.error_lbl.config(text=f"Video '{self.title_str.get()}' downloaded successfully!")
+            if platform == "darwin":
+                self.error_lbl.config(text=f"Video '{self.title_str.get()}' downloaded successfully!")
+            else:
+                self.error_lbl.config(text = "Video downloaded sucessfully!")
 
 
     def dld_video(self, d_video):
@@ -118,10 +125,6 @@ class Downloader(Tk):
                 path = f"{self.download_path}/{d_video.title}.mp4"
                 print(path)
                 os.rename(path, f"{self.download_path}/{self.title_str.get()}.mp4")
-            elif platform == "win32":
-                path = f"{self.download_path}\\{d_video.title}.mp4"
-                print(path)
-                os.rename(path, f"{self.download_path}\\{self.title_str.get()}.mp4")
 
         except OSError as e:
             self.error_lbl.config(text="Error in downloading the video")
