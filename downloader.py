@@ -1,6 +1,7 @@
 from tkinter import *
 from sys import platform
 from tkinter import filedialog
+import os
 import pytube
 
 class Downloader(Tk):
@@ -25,6 +26,7 @@ class Downloader(Tk):
         self.init_widgets()
         
         self.mainloop()
+
 
     def init_widgets(self):
         self.title = Label(self, text="Video Downloader", bg="red", height=2, fg="#fff", font=("Helvetica", 35, "bold"))
@@ -93,7 +95,8 @@ class Downloader(Tk):
                 d_video = yt.streams.first()
 
             if self.title_str.get() != "":
-                self.dld_video(d_video)
+                error = self.dld_video(d_video)
+                if error == "error": return
             else:
                 self.error_lbl.config(text=f"Please enter a title")
                 print("No title") 
@@ -105,11 +108,26 @@ class Downloader(Tk):
 
     def dld_video(self, d_video):
         try:
+            if os.path.exists(f"{self.download_path}/{d_video.title}.mp4"):
+                self.error_lbl.config(text="File already exixts")
+                return
+
             d_video.download(self.download_path)
-        except OSError:
+
+            if platform == "darwin" or platform == "linux":
+                path = f"{self.download_path}/{d_video.title}.mp4"
+                print(path)
+                os.rename(path, f"{self.download_path}/{self.title_str.get()}.mp4")
+            elif platform == "win32":
+                path = f"{self.download_path}\\{d_video.title}.mp4"
+                print(path)
+                os.rename(path, f"{self.download_path}\\{self.title_str.get()}.mp4")
+
+        except OSError as e:
             self.error_lbl.config(text="Error in downloading the video")
             print("OS Error")
-            return
+            return "error"
+
 
 if __name__ == "__main__":
     app = Downloader()
