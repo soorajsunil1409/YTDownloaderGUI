@@ -10,6 +10,7 @@ class Downloader(Tk):
         self.title("Tube Downloader")
         self.geometry("600x330")
         self.resizable(False, False)
+        self.file_size=0
 
         icon = PhotoImage(file="icon.png")
         self.iconphoto(True, icon)
@@ -53,6 +54,17 @@ class Downloader(Tk):
         self.error_lbl.pack(side=BOTTOM, pady=15)
 
         self.init_menu()
+
+
+    def progress_Check(self, stream = None, chunk = None, file_handle = None, remaining = None):
+        about_win = Tk()
+
+        lbl = Label(about_win, text="")
+        lbl.pack()
+        percent = (100*(self.file_size-remaining))/self.file_size
+        lbl.config(text=f"{percentage}")
+
+        about_win.mainloop()
 
 
     def init_menu(self):
@@ -118,7 +130,7 @@ class Downloader(Tk):
             if os.path.exists(f"{self.download_path}/{d_video.title}.mp4"):
                 self.error_lbl.config(text="File already exixts")
                 return
-
+                
             d_video.download(self.download_path)
 
             if platform == "darwin" or platform == "linux":
