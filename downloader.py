@@ -10,6 +10,9 @@ class Downloader(Tk):
         self.geometry("600x330")
         self.resizable(False, False)
 
+        icon = PhotoImage(file="icon.png")
+        self.iconphoto(True, icon)
+
         if platform == "darwin":
             self.def_font_size = 22
         elif platform == "win32":
