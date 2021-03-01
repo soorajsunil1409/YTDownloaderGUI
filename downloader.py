@@ -13,7 +13,7 @@ class Downloader(Tk):
         if platform == "darwin":
             self.def_font_size = 22
         elif platform == "win32":
-            self.def_font_size = 22
+            self.def_font_size = 17
 
         self.link_str = StringVar()
         self.path_str = StringVar()
@@ -51,7 +51,7 @@ class Downloader(Tk):
     def init_menu(self):
         self.menu = Menu(self)
 
-        self.help1 = Menu(self.menu)
+        self.help1 = Menu(self.menu, tearoff=False)
         self.help1.add_command(label="About...", command=self.show_about)
 
         self.menu.add_cascade(label="Help", menu=self.help1)
