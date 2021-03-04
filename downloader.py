@@ -72,7 +72,7 @@ class Downloader(Tk):
         if liveprogress > self.previousprogress:
             previousprogress = liveprogress
             self.error_lbl.config(text=f"Downloaded: {int(round(liveprogress, 0))}%")
-            self.progress['value'] = int(round(liveprogress, 0))
+            self.progress['value'] = liveprogress
 
             if liveprogress == 100:
                 self.error_lbl.config(text="Downloaded Sucessfully!!")
