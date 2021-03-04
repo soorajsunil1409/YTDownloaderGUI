@@ -1,2 +1,8 @@
 Downloader/
 test.py
+build/
+dist/
+*.png
+*.icns
+icon.webp
+setup.py
