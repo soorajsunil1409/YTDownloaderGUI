@@ -1,19 +1,24 @@
 from tkinter import *
+from tkinter import ttk
 from sys import platform
 from tkinter import filedialog
 import os
 import pytube
+from threading import Thread
 
 class Downloader(Tk):
     def __init__(self):
         super().__init__()
         self.title("Tube Downloader")
-        self.geometry("600x330")
+        self.geometry("600x360")
         self.resizable(False, False)
-        self.file_size=0
+        self.previousprogress=0
+        self.d_video = None
 
         icon = PhotoImage(file="icon.png")
         self.iconphoto(True, icon)
+
+        self.th = Thread(target=self.dld_video)
 
         if platform == "darwin":
             self.def_font_size = 22
@@ -53,18 +58,24 @@ class Downloader(Tk):
         self.error_lbl = Label(self, text="", font=("Helvetica", self.def_font_size, "bold"))
         self.error_lbl.pack(side=BOTTOM, pady=15)
 
+        self.progress = ttk.Progressbar(self, orient=HORIZONTAL, length=400, mode="determinate")
+        self.progress.place(width=400, x=100, y=285)
+
         self.init_menu()
 
 
-    def progress_Check(self, stream = None, chunk = None, file_handle = None, remaining = None):
-        about_win = Tk()
+    def progress_Check(self, stream = None, chunk = None, remaining = None):
+        file_size = stream.filesize
+        bytes_downloaded = file_size - remaining
 
-        lbl = Label(about_win, text="")
-        lbl.pack()
-        percent = (100*(self.file_size-remaining))/self.file_size
-        lbl.config(text=f"{percentage}")
+        liveprogress = bytes_downloaded / file_size * 100
+        if liveprogress > self.previousprogress:
+            previousprogress = liveprogress
+            self.error_lbl.config(text=f"Downloaded: {int(round(liveprogress, 0))}%")
+            self.progress['value'] = int(round(liveprogress, 0))
 
-        about_win.mainloop()
+            if liveprogress == 100:
+                self.error_lbl.config(text="Downloaded Sucessfully!!")
 
 
     def init_menu(self):
@@ -98,45 +109,38 @@ class Downloader(Tk):
 
             try:
                 yt = pytube.YouTube(self.link_str.get())
+                yt.register_on_progress_callback(self.progress_Check)
             except:
                 self.error_lbl.config(text=f"Invalid URL '{self.link_str.get()}'")
                 print(self.path_str.get())
                 print("Invalid URL")
                 return
             try:
-                d_video = yt.streams.filter(res="720p")[0]
+                self.d_video = yt.streams.filter(res="720p")[0]
             except:
-                d_video = yt.streams.first()
+                self.d_video = yt.streams.first()
 
             if platform == "darwin":
                 if self.title_str.get() != "":
-                    error = self.dld_video(d_video)
+                    error = self.th.start()
                     if error == "error": return
                 else:
                     self.error_lbl.config(text=f"Please enter a title")
                     print("No title") 
                     return
             else:
-                error = self.dld_video(d_video)
-
-            if platform == "darwin":
-                self.error_lbl.config(text=f"Video '{self.title_str.get()}' downloaded successfully!")
-            else:
-                self.error_lbl.config(text = "Video downloaded sucessfully!")
+                error = self.th.start()
 
 
-    def dld_video(self, d_video):
-        try:
-            if os.path.exists(f"{self.download_path}/{d_video.title}.mp4"):
-                self.error_lbl.config(text="File already exixts")
-                return
-                
-            d_video.download(self.download_path)
+    def dld_video(self):
+        try:                
+            self.d_video.download(self.download_path)
 
             if platform == "darwin" or platform == "linux":
-                path = f"{self.download_path}/{d_video.title}.mp4"
-                print(path)
-                os.rename(path, f"{self.download_path}/{self.title_str.get()}.mp4")
+                filename = self.d_video.title.strip('"') + ".mp4"
+                path = os.path.join(self.download_path, filename)
+                rename_filename = self.title_str.get() + ".mp4"
+                os.rename(path, os.path.join(self.download_path, rename_filename))
 
         except OSError as e:
             self.error_lbl.config(text="Error in downloading the video")
