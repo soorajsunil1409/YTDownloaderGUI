@@ -59,7 +59,7 @@ class Downloader(Tk):
         self.error_lbl.pack(side=BOTTOM, pady=15)
 
         self.progress = ttk.Progressbar(self, orient=HORIZONTAL, length=400, mode="determinate")
-        self.progress.place(width=400, x=100, y=285)
+        self.progress.place(width=400, height=5, x=100, y=285)
 
         self.init_menu()
 
